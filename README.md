@@ -356,3 +356,59 @@ Use any GGUF model:
 ner "text" --model "hf:unsloth/Qwen3-8B-GGUF:Qwen3-8B-Q4_K_M.gguf"
 ner "text" --model ./my-model.gguf
 ```
+
+---
+
+## Complete Ontology Schema Example
+
+Schema files let you define your entire ontology in one place:
+
+```json
+{
+  "taxonomy": {
+    "organism": [
+      "person",
+      {
+        "animal": ["dog", "cat", "bird"]
+      }
+    ],
+    "place": [
+      "city",
+      "country",
+      {
+        "building": ["hospital", "school", "office"]
+      }
+    ],
+    "institution": ["company", "university", "government_agency"],
+    "concept": ["idea", "theory", "principle"]
+  },
+  "classes": ["person", "organization", "location", "event", "disease", "drug"],
+  "attributes": ["role", "age", "location", "date", "affiliation", "specialty"],
+  "attrValues": {
+    "role": ["doctor", "researcher", "patient", "student"],
+    "location": ["Boston", "New York", "London", "Tokyo"]
+  },
+  "relations": [
+    "works_at",
+    "located_in",
+    "treats",
+    "studies",
+    "collaborates_with"
+  ],
+  "relationClasses": [
+    "employment",
+    "spatial",
+    "medical",
+    "academic",
+    "professional"
+  ]
+}
+```
+
+Usage:
+
+```bash
+ner --schema complete-ontology.json "Dr. Chen works at Massachusetts General Hospital in Boston"
+```
+
+This loads taxonomy, classes, attributes, attribute values, relation types, and relation classes all at once.
