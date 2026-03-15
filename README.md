@@ -277,6 +277,67 @@ Definitions, in Objectivist epistemology, identify the essential characteristics
 
 Several fields (`assertion`, `confidence`, `entity_id`, `class` enums) are enforced at the grammar level, not merely prompted. The model literally cannot produce an invalid value. This is the computational equivalent of the principle that contradictions cannot exist -- the system's structure makes certain errors impossible rather than merely unlikely.
 
+## Building Up Knowledge
+
+fastner is designed as a tool for the Objectivist project of building knowledge from percepts through concepts to principles and finally to action — the exact process implemented in the companion project **[objectivist-lattice](https://github.com/richardanaya/objectivist-lattice)**.
+
+### The Epistemological Pipeline
+
+Objectivism holds that all knowledge begins with **percepts** (raw sensory data), which are integrated into **concepts**, which are organized into **principles** (general truths), which are finally applied as **actions** in specific contexts.
+
+`objectivist-lattice` enforces this hierarchy strictly on a filesystem of Markdown files with validation rules:
+
+- **Axioms** and **percepts** are bedrock — they have no `reduces_to` links
+- **Principles** must reduce to axioms or percepts
+- **Applications** must reduce to principles
+- Promotion from `Tentative/Hypothesis` to `Integrated/Validated` can only happen bottom-up
+
+### How NER Helps Build the Lattice
+
+fastner acts as the **percept-to-concept extraction layer** for this system:
+
+1. **Percept Extraction** (`--detect-negation`)
+   - Identifies concrete entities from source material (books, articles, personal observations)
+   - Distinguishes what is asserted as present, negated, or hypothetical
+   - Feeds raw perceptual data into the `02-Percepts/` directory
+
+2. **Concept Formation** (`--classes`, `--taxonomy`, `--resolve`)
+   - Groups multiple mentions of the same entity (`entity_id`)
+   - Classifies entities into hierarchical taxonomies (`organism > person > neurologist`)
+   - Maintains identity across contexts — "Dr. Chen", "she", and "the neurologist" are recognized as the same existent
+
+3. **Principle Discovery** (`--relations`, `--schema`)
+   - Extracts relations between entities ("works at", "causes", "implies")
+   - Uses schema files to enforce your ontological commitments
+   - Surfaces potential principles by showing what consistently reduces to what
+
+4. **Action Guidance** (`--include-confidence`)
+   - Rates confidence in each extraction
+   - Helps distinguish high-certainty principles (suitable for action) from speculative ones (still tentative)
+
+### Practical Workflow
+
+```bash
+# Extract entities from a book chapter
+ner --file chapter1.txt --detect-negation --resolve --include-confidence > percepts.json
+
+# Convert to lattice format
+cat percepts.json | jq '.[] | {title: .text, level: "percept", proposition: (.text + " was observed")}' > 02-Percepts/20260315-percept-001.md
+
+# Later, when forming principles
+ner --relations --schema ontology.json "text from multiple chapters" > principles.json
+```
+
+The combination of **objectivist-ner** (extraction) and **objectivist-lattice** (validation and organization) creates a complete pipeline:
+
+**Percepts → Concepts → Principles → Validated Knowledge → Action**
+
+This is not just information extraction. It is epistemological engineering — using computation to enforce the proper hierarchical structure of knowledge, preventing floating abstractions and ensuring every principle is grounded in percepts and axioms.
+
+The grammar-enforced fields (`assertion`, `confidence`, `entity_id`) are not arbitrary features. They are computational implementations of fundamental epistemological requirements: every concept must have a relationship to reality, every claim must have an epistemic status, and identity must be maintained across contexts.
+
+See the [objectivist-lattice](https://github.com/richardanaya/objectivist-lattice) repository for the validation and knowledge management layer that pairs with this tool.
+
 ## Custom models
 
 If the built-in tiers don't fit your needs, you can pass any GGUF model with `--model`. This overrides `--fast`/`--balanced`/`--best`.
