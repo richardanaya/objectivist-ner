@@ -148,6 +148,39 @@ ner --relations "Dr. Chen works at MIT and collaborates with Prof. Wright"
 
 Relations show how entities connect — extracting the "connective tissue" between concepts.
 
+You can also categorize relations by class:
+
+```bash
+ner --relations --relation-classes "employment,location,causal,professional" \
+  "Dr. Chen works at MIT and collaborates with Prof. Wright"
+```
+
+```json
+{
+  "entities": [
+    { "class": "person", "text": "Dr. Chen" },
+    { "class": "organization", "text": "MIT" },
+    { "class": "person", "text": "Prof. Wright" }
+  ],
+  "relations": [
+    {
+      "source": "Dr. Chen",
+      "target": "MIT",
+      "relation": "works at",
+      "class": "employment"
+    },
+    {
+      "source": "Dr. Chen",
+      "target": "Prof. Wright",
+      "relation": "collaborates with",
+      "class": "professional"
+    }
+  ]
+}
+```
+
+The `class` field categorizes the relation type (e.g., employment, causal, spatial), allowing you to group and analyze connections by category.
+
 ## Installation
 
 ```bash
@@ -274,6 +307,7 @@ cat article.txt | ner --detect-negation
 | `--attr-values <json>`            | Enum map for attribute values                      |
 | `--taxonomy <json>`               | Class hierarchy (parent → children)                |
 | `--relations`                     | Extract relations between entities                 |
+| `--relation-classes <list>`       | Allowed relation classes (e.g. employment,causal)  |
 | `--resolve`                       | Resolve coreferences (adds entity_id)              |
 | `--detect-negation`               | Add assertion field (present/negated/hypothetical) |
 | `--include-confidence`            | Add confidence field (low/medium/high)             |

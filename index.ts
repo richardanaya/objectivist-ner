@@ -44,6 +44,7 @@ interface SchemaFile {
   attributes?: string[];
   attrValues?: Record<string, string[]>;
   relations?: string[];
+  relationClasses?: string[];
 }
 
 // === TAXONOMY HELPERS ===
@@ -178,6 +179,10 @@ program
     'Class hierarchy JSON e.g. {"organism":["animal","plant"]}',
   )
   .option("--relations", "Extract relations between entities")
+  .option(
+    "--relation-classes <list>",
+    "Comma-separated allowed relation classes (e.g. employment,location,causal)",
+  )
   .option("--resolve", "Resolve coreferences (group mentions of same entity)")
   .option("--include-confidence", "Include confidence scores per entity")
   .option("--detect-negation", "Detect negated/hypothetical entities")
@@ -293,6 +298,9 @@ if (opts.taxonomy) {
 
 const enableRelations = opts.relations || !!schemaFile?.relations;
 const relationTypes: string[] | undefined = schemaFile?.relations || undefined;
+const relationClasses: string[] | undefined = opts.relationClasses
+  ? opts.relationClasses.split(",").map((s: string) => s.trim())
+  : schemaFile?.relationClasses;
 const enableResolve = !!opts.resolve;
 const enableConfidence = !!opts.includeConfidence;
 const enableNegation = !!opts.detectNegation;
@@ -444,6 +452,23 @@ function buildGrammarSchema() {
 
 // === BUILD RELATIONS SCHEMA ===
 function buildRelationsSchema() {
+  const relationProperties: any = {
+    source: { type: "string" },
+    target: { type: "string" },
+    relation: {
+      type: "string",
+      ...(relationTypes && { enum: relationTypes }),
+    },
+  };
+
+  // Add class field if relationClasses is specified
+  if (relationClasses) {
+    relationProperties.class = {
+      type: "string",
+      enum: relationClasses,
+    };
+  }
+
   const relSchema: any = {
     type: "object",
     properties: {
@@ -452,15 +477,10 @@ function buildRelationsSchema() {
         type: "array",
         items: {
           type: "object",
-          properties: {
-            source: { type: "string" },
-            target: { type: "string" },
-            relation: {
-              type: "string",
-              ...(relationTypes && { enum: relationTypes }),
-            },
-          },
-          required: ["source", "target", "relation"],
+          properties: relationProperties,
+          required: relationClasses
+            ? ["source", "target", "relation", "class"]
+            : ["source", "target", "relation"],
           additionalProperties: false,
         },
       },
@@ -500,9 +520,17 @@ function buildConstraints(): string {
     constraints += `\nEvery entity has "entity_id" and "is_canonical" fields. Coreferent mentions share entity_id; exactly one per group has is_canonical:true (the most specific reference). Example: [{"class":"person","text":"Dr. Chen","entity_id":"e1","is_canonical":true,"attributes":{}},{"class":"person","text":"She","entity_id":"e1","is_canonical":false,"attributes":{}}]`;
   }
   if (enableRelations) {
-    constraints += `\nAlso extract relations between entities. Return {"entities": [...], "relations": [{"source": "entity text", "target": "entity text", "relation": "relation type"}]}.`;
+    let relDesc = `\nAlso extract relations between entities.`;
+    if (relationClasses) {
+      relDesc += ` Each relation must have a "class" field categorizing the relation type.`;
+    }
+    relDesc += ` Return {"entities": [...], "relations": [{"source": "entity text", "target": "entity text", "relation": "relation type"${relationClasses ? ', "class": "relation class"' : ""}}]}.`;
+    constraints += relDesc;
     if (relationTypes) {
       constraints += ` Allowed relation types: ${relationTypes.join(", ")}.`;
+    }
+    if (relationClasses) {
+      constraints += ` Allowed relation classes: ${relationClasses.join(", ")}.`;
     }
   }
 
