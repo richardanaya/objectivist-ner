@@ -1,6 +1,6 @@
 {
   "name": "objectivist-ner",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output",
   "bin": {
     "ner": "index.ts"
