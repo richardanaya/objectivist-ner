@@ -47,20 +47,48 @@ interface SchemaFile {
 }
 
 // === TAXONOMY HELPERS ===
-function flattenTaxonomy(taxonomy: Record<string, string[]>): string[] {
-  const all = new Set<string>();
+function getLeafNodes(taxonomy: Record<string, string[]>): string[] {
+  const allNodes = new Set<string>();
+  const parents = new Set<string>();
+
   for (const [parent, children] of Object.entries(taxonomy)) {
-    all.add(parent);
-    for (const child of children) all.add(child);
+    parents.add(parent);
+    for (const child of children) {
+      allNodes.add(child);
+    }
   }
-  return [...all];
+
+  return [...allNodes].filter((node) => !parents.has(node));
+}
+
+function getTaxonomyPath(
+  leaf: string,
+  taxonomy: Record<string, string[]>,
+): string[] {
+  const path: string[] = [leaf];
+  let current = leaf;
+
+  while (true) {
+    let foundParent = false;
+    for (const [parent, children] of Object.entries(taxonomy)) {
+      if (children.includes(current)) {
+        path.push(parent);
+        current = parent;
+        foundParent = true;
+        break;
+      }
+    }
+    if (!foundParent) break;
+  }
+
+  return path.reverse();
 }
 
 function taxonomyToPrompt(taxonomy: Record<string, string[]>): string {
   const lines = Object.entries(taxonomy)
     .map(([parent, children]) => `  ${parent}: ${children.join(", ")}`)
     .join("\n");
-  return `Use the following class hierarchy. Classify at the most specific level.\n${lines}`;
+  return `Use the following class hierarchy. Classify at the most specific (leaf) level possible.\n${lines}`;
 }
 
 // === CHUNKING ===
@@ -130,17 +158,16 @@ program
     "after",
     `
 Examples:
-  fastner "the cat is blue"
-  fastner --fast "simple short text"
-  fastner "John works at Google" --classes person,organization
-  fastner "sky is blue" --attr-values '{"color":["blue","red"]}'
-  fastner --relations "Dr. Chen works at MIT"
-  fastner --resolve "Dr. Chen published a paper. She won an award."
-  fastner --detect-negation "The patient does not have diabetes"
-  fastner --schema schema.json "complex text"
-  fastner --file document.txt
-  fastner --batch inputs.jsonl
-  echo "the cat is blue" | fastner
+  ner "the cat is blue"
+  ner "John works at Google" --classes person,organization
+  ner "sky is blue" --attr-values '{"color":["blue","red"]}'
+  ner --relations "Dr. Chen works at MIT"
+  ner --resolve "Dr. Chen published a paper. She won an award."
+  ner --detect-negation "The patient does not have cancer"
+  ner --schema schema.json "complex text"
+  ner --file document.txt
+  ner --batch inputs.jsonl
+  echo "the cat is blue" | ner
 `,
   )
   .parse();
@@ -306,8 +333,9 @@ function buildSystemPrompt(): string {
 
 // === BUILD GRAMMAR SCHEMA ===
 function buildGrammarSchema() {
-  // Determine allowed classes from taxonomy or explicit list
-  const classEnum = taxonomy ? flattenTaxonomy(taxonomy) : allowedClasses;
+  // When using taxonomy, only allow leaf nodes as valid classes.
+  // This forces the model to classify at the most specific level.
+  const classEnum = taxonomy ? getLeafNodes(taxonomy) : allowedClasses;
 
   const attributesSchema: any = {
     type: "object",
@@ -453,6 +481,15 @@ async function processText(
         res,
       );
       parsed = enableRelations ? { entities: [], relations: [] } : [];
+    }
+  }
+
+  // If taxonomy is used, add taxonomyPath showing full hierarchy
+  if (taxonomy && !enableRelations && Array.isArray(parsed)) {
+    for (const entity of parsed) {
+      if (entity.class && typeof entity.class === "string") {
+        entity.taxonomyPath = getTaxonomyPath(entity.class, taxonomy);
+      }
     }
   }
 

@@ -159,17 +159,31 @@ ner "The sky is blue" --attr-values '{"color":["blue","red","green"]}'
 ```
 
 # Hierarchical class taxonomy
-ner "Dr. Chen lives in Boston with her cat" \
-  --taxonomy '{"organism":["person","animal"],"place":["city","country"]}'
+ner \
+  --taxonomy '{"organism":["person","animal"],"animal":["dog","cat"]}' \
+  "The golden retriever was playing in the park with the child."
 ```
 
 ```json
 [
-  {"class":"person","text":"Dr. Chen","attributes":{}},
-  {"class":"place","text":"Boston","attributes":{}},
-  {"class":"animal","text":"cat","attributes":{}}
+  {
+    "class": "dog",
+    "text": "golden retriever",
+    "taxonomyPath": ["organism", "animal", "dog"],
+    "attributes": {}
+  },
+  {
+    "class": "person",
+    "text": "child",
+    "taxonomyPath": ["organism", "person"],
+    "attributes": {}
+  }
 ]
 ```
+
+When using `--taxonomy`, the model is only allowed to choose from the most specific (**leaf**) classes. The `class` field contains the leaf node, and `taxonomyPath` shows the full hierarchy from root to leaf.
+
+This reflects Objectivist concept formation: identify at the proper level of specificity, while preserving the hierarchical structure of knowledge (genus and differentia).
 
 
 Output:
