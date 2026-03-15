@@ -24,9 +24,9 @@ tests/
 *.swp
 .DS_Store
 
-# Build artifacts (if any)
-dist/
-build/
+# Source files (we publish dist/ instead)
+index.ts
+tsconfig.json
 
 # Temporary files
 .tmp/
