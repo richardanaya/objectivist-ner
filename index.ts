@@ -2,12 +2,7 @@ import { program } from "commander";
 import path from "path";
 import os from "os";
 import fs from "fs";
-import {
-  getLlama,
-  LlamaChatSession,
-  resolveModelFile,
-  LlamaLogLevel,
-} from "node-llama-cpp";
+import { getLlama, LlamaChatSession, resolveModelFile } from "node-llama-cpp";
 
 // === MODELS ===
 const MODELS = {
@@ -367,14 +362,7 @@ const modelUri = opts.model
 const modelsDir = path.join(os.homedir(), ".ner", "models");
 const modelPath = await resolveModelFile(modelUri, modelsDir);
 
-const llama = await getLlama({
-  build: "autoAttempt",
-  logLevel: LlamaLogLevel.error,
-  cmakeOptions: {
-    GGML_CPU: "ON",
-    GGML_NATIVE: "ON",
-  },
-});
+const llama = await getLlama();
 const model = await llama.loadModel({ modelPath });
 const context = await model.createContext();
 
