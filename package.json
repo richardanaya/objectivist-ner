@@ -1,6 +1,6 @@
 {
   "name": "objectivist-ner",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output",
   "bin": {
     "ner": "index.ts"
@@ -16,6 +16,9 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "scripts": {
+    "postinstall": "node-llama-cpp download"
   },
   "dependencies": {
     "commander": "^14.0.3",
