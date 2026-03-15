@@ -539,10 +539,6 @@ ner "text" --model "hf:unsloth/Qwen3-8B-GGUF:Qwen3-8B-Q4_K_M.gguf"
 ner "text" --model ./my-custom-model.gguf
 ```
 
-## License
-
-MIT © Richard Anaya
-
 ```
 
 ```
