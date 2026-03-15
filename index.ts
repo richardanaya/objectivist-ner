@@ -2,7 +2,12 @@ import { program } from "commander";
 import path from "path";
 import os from "os";
 import fs from "fs";
-import { getLlama, LlamaChatSession, resolveModelFile } from "node-llama-cpp";
+import {
+  getLlama,
+  LlamaChatSession,
+  resolveModelFile,
+  LlamaLogLevel,
+} from "node-llama-cpp";
 
 // === MODELS ===
 const MODELS = {
@@ -359,10 +364,13 @@ const modelUri = opts.model
       ? MODELS.balanced
       : MODELS.best;
 
-const modelsDir = path.join(os.homedir(), ".fastner", "models");
+const modelsDir = path.join(os.homedir(), ".ner", "models");
 const modelPath = await resolveModelFile(modelUri, modelsDir);
 
-const llama = await getLlama();
+const llama = await getLlama({
+  build: "autoAttempt",
+  logLevel: LlamaLogLevel.error,
+});
 const model = await llama.loadModel({ modelPath });
 const context = await model.createContext();
 
