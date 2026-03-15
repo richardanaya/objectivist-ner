@@ -76,9 +76,27 @@ Now consider this sentence:
 
 ```json
 [
-  { "class": "person", "text": "Dr. Chen", "entity_id": "e1" },
-  { "class": "person", "text": "She", "entity_id": "e1" },
-  { "class": "person", "text": "The neurologist", "entity_id": "e1" }
+  {
+    "class": "person",
+    "text": "Dr. Chen",
+    "attributes": {},
+    "entity_id": "e1",
+    "is_canonical": true
+  },
+  {
+    "class": "person",
+    "text": "She",
+    "attributes": {},
+    "entity_id": "e1",
+    "is_canonical": false
+  },
+  {
+    "class": "person",
+    "text": "The neurologist",
+    "attributes": {},
+    "entity_id": "e1",
+    "is_canonical": false
+  }
 ]
 ```
 
@@ -115,49 +133,67 @@ After global install, use the `ner` command directly.
 
 ## Usage
 
-````bash
+```bash
 # Default mode (best quality)
 ner "the cat is blue and is feeling sad"
+```
 
 ```json
-[{"class":"animal","text":"cat","attributes":{"color":"blue","emotional_state":"sad"}}]
-````
+[
+  {
+    "class": "animal",
+    "text": "cat",
+    "attributes": { "color": "blue", "emotional_state": "sad" }
+  }
+]
+```
 
+```bash
 # Choose quality vs speed
-
 ner --fast "the cat is blue"
 ner --balanced "John works at Google in NYC"
 ner --best "complex medical research text"
-
-````
+```
 
 ### Entity constraints
 
 ```bash
 # Restrict entity classes
 ner "John works at Google" --classes person,organization
+```
 
 ```json
 [
-  {"class":"person","text":"John","attributes":{}},
-  {"class":"organization","text":"Google","attributes":{}}
+  { "class": "person", "text": "John", "attributes": {} },
+  { "class": "organization", "text": "Google", "attributes": {} }
 ]
 ```
 
+```bash
 # Restrict attribute keys
 ner "Alice is sad in Paris" --attributes emotional_state,location
-
-```json
-[{"class":"person","text":"Alice","attributes":{"emotional_state":"sad","location":"Paris"}}]
 ```
 
+```json
+[
+  {
+    "class": "person",
+    "text": "Alice",
+    "attributes": { "emotional_state": "sad", "location": "Paris" }
+  }
+]
+```
+
+```bash
 # Restrict attribute values with enums
 ner "The sky is blue" --attr-values '{"color":["blue","red","green"]}'
-
-```json
-[{"class":"object","text":"sky","attributes":{"color":"blue"}}]
 ```
 
+```json
+[{ "class": "object", "text": "sky", "attributes": { "color": "blue" } }]
+```
+
+```bash
 # Hierarchical class taxonomy
 ner \
   --taxonomy '{"organism":["person","animal"],"animal":["dog","cat"]}' \
@@ -167,16 +203,16 @@ ner \
 ```json
 [
   {
-    "class": "dog",
-    "text": "golden retriever",
-    "taxonomyPath": ["organism", "animal", "dog"],
-    "attributes": {}
-  },
-  {
     "class": "person",
     "text": "child",
-    "taxonomyPath": ["organism", "person"],
-    "attributes": {}
+    "attributes": {},
+    "taxonomyPath": ["organism", "person"]
+  },
+  {
+    "class": "dog",
+    "text": "golden retriever",
+    "attributes": { "color": "golden" },
+    "taxonomyPath": ["organism", "animal", "dog"]
   }
 ]
 ```
@@ -202,26 +238,6 @@ Output:
   ],
   "relations": [
     { "source": "Dr. Chen", "target": "MIT", "relation": "works at" },
-    { "source": "Dr. Chen", "target": "Prof. Wright", "relation": "collaborates with" }
-  ]
-}
-```
-
-Relations show how entities connect—extracting the "connective tissue" between concepts. "Dr. Chen works at MIT" is not a property of Chen or MIT alone; it is a fact about reality that integrates two existents into a proposition.
-
-This demonstrates **conceptual integration**: concepts do not exist in isolation, they form a connected structure of knowledge.
-
-Output:
-
-```json
-{
-  "entities": [
-    { "class": "person", "text": "Dr. Chen", "attributes": {} },
-    { "class": "organization", "text": "MIT", "attributes": {} },
-    { "class": "person", "text": "Prof. Wright", "attributes": {} }
-  ],
-  "relations": [
-    { "source": "Dr. Chen", "target": "MIT", "relation": "works at" },
     {
       "source": "Dr. Chen",
       "target": "Prof. Wright",
@@ -230,6 +246,10 @@ Output:
   ]
 }
 ```
+
+Relations show how entities connect—extracting the "connective tissue" between concepts. "Dr. Chen works at MIT" is not a property of Chen or MIT alone; it is a fact about reality that integrates two existents into a proposition.
+
+This demonstrates **conceptual integration**: concepts do not exist in isolation, they form a connected structure of knowledge.
 
 ### Coreference resolution
 
@@ -282,9 +302,24 @@ ner --detect-negation "The patient has diabetes but does not have cancer. He mig
 
 ```json
 [
-  {"class":"disease","text":"diabetes","attributes":{},"assertion":"present"},
-  {"class":"disease","text":"cancer","attributes":{},"assertion":"negated"},
-  {"class":"disease","text":"hypertension","attributes":{},"assertion":"hypothetical"}
+  {
+    "class": "disease",
+    "text": "diabetes",
+    "attributes": {},
+    "assertion": "present"
+  },
+  {
+    "class": "disease",
+    "text": "cancer",
+    "attributes": {},
+    "assertion": "negated"
+  },
+  {
+    "class": "disease",
+    "text": "hypertension",
+    "attributes": {},
+    "assertion": "hypothetical"
+  }
 ]
 ```
 
@@ -349,36 +384,36 @@ ner "the cat is blue" --compact
 
 fastner ships with three built-in quality tiers. Pick one with a flag -- the model is downloaded automatically on first use to `~/.fastner/models/`.
 
-| Flag         | Size   | Download | Best for                              |
-| ------------ | ------ | -------- | ------------------------------------- |
-| `--fast`     | Small  | ~0.9 GB  | Simple text, single entities          |
-| `--balanced` | Medium | ~2.3 GB  | Moderate complexity, most tasks       |
-| `--best`     | Large  | ~4.5 GB  | Dense text, rare entity types         |
+| Flag         | Size   | Download | Best for                        |
+| ------------ | ------ | -------- | ------------------------------- |
+| `--fast`     | Small  | ~0.9 GB  | Simple text, single entities    |
+| `--balanced` | Medium | ~2.3 GB  | Moderate complexity, most tasks |
+| `--best`     | Large  | ~4.5 GB  | Dense text, rare entity types   |
 
 `--best` is the default. See [Benchmarks](#benchmarks) for why.
 
 ## Options
 
-| Flag                              | Description                                    |
-| --------------------------------- | ---------------------------------------------- |
-| `--fast`                          | Use smallest model -- quick, simple text only   |
+| Flag                              | Description                                        |
+| --------------------------------- | -------------------------------------------------- |
+| `--fast`                          | Use smallest model -- quick, simple text only      |
 | `--balanced`                      | Use mid-size model -- good accuracy/speed tradeoff |
-| `--best`                          | Use largest model -- best accuracy (default)    |
-| `-c, --classes <list>`            | Comma-separated allowed entity classes         |
-| `-a, --attributes <list>`         | Comma-separated allowed attribute keys         |
-| `--attr-values <json>`            | JSON enum map for attribute values             |
-| `--taxonomy <json>`               | Class hierarchy JSON                           |
-| `--relations`                     | Extract relations between entities             |
-| `--resolve`                       | Resolve coreferences                           |
-| `--include-confidence`            | Include confidence scores per entity           |
-| `--detect-negation`               | Detect negated/hypothetical entities           |
-| `--schema <path>`                 | Load schema definition from JSON file          |
-| `--file <path>`                   | Read input from file (with chunking)           |
-| `--batch <path>`                  | Process JSONL file or directory of .txt files  |
-| `--system-prompt <string>`        | Replace the built-in system prompt entirely    |
-| `--system-prompt-append <string>` | Append to the built-in system prompt           |
-| `--compact`                       | Output compact JSON (auto-enabled for non-TTY) |
-| `-m, --model <uri>`               | Use any GGUF model (see below)                 |
+| `--best`                          | Use largest model -- best accuracy (default)       |
+| `-c, --classes <list>`            | Comma-separated allowed entity classes             |
+| `-a, --attributes <list>`         | Comma-separated allowed attribute keys             |
+| `--attr-values <json>`            | JSON enum map for attribute values                 |
+| `--taxonomy <json>`               | Class hierarchy JSON                               |
+| `--relations`                     | Extract relations between entities                 |
+| `--resolve`                       | Resolve coreferences                               |
+| `--include-confidence`            | Include confidence scores per entity               |
+| `--detect-negation`               | Detect negated/hypothetical entities               |
+| `--schema <path>`                 | Load schema definition from JSON file              |
+| `--file <path>`                   | Read input from file (with chunking)               |
+| `--batch <path>`                  | Process JSONL file or directory of .txt files      |
+| `--system-prompt <string>`        | Replace the built-in system prompt entirely        |
+| `--system-prompt-append <string>` | Append to the built-in system prompt               |
+| `--compact`                       | Output compact JSON (auto-enabled for non-TTY)     |
+| `-m, --model <uri>`               | Use any GGUF model (see below)                     |
 
 ## Benchmarks
 
@@ -511,4 +546,7 @@ ner "text" --model ./my-custom-model.gguf
 ## License
 
 MIT © Richard Anaya
-````
+
+```
+
+```
