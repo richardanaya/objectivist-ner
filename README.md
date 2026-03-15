@@ -185,6 +185,31 @@ When using `--taxonomy`, the model is only allowed to choose from the most speci
 
 This reflects Objectivist concept formation: identify at the proper level of specificity, while preserving the hierarchical structure of knowledge (genus and differentia).
 
+### Relations (Conceptual Integration)
+
+```bash
+ner --relations "Dr. Chen works at MIT and collaborates with Prof. Wright"
+```
+
+Output:
+
+```json
+{
+  "entities": [
+    { "class": "person", "text": "Dr. Chen", "attributes": {} },
+    { "class": "organization", "text": "MIT", "attributes": {} },
+    { "class": "person", "text": "Prof. Wright", "attributes": {} }
+  ],
+  "relations": [
+    { "source": "Dr. Chen", "target": "MIT", "relation": "works at" },
+    { "source": "Dr. Chen", "target": "Prof. Wright", "relation": "collaborates with" }
+  ]
+}
+```
+
+Relations show how entities connect—extracting the "connective tissue" between concepts. "Dr. Chen works at MIT" is not a property of Chen or MIT alone; it is a fact about reality that integrates two existents into a proposition.
+
+This demonstrates **conceptual integration**: concepts do not exist in isolation, they form a connected structure of knowledge.
 
 Output:
 
