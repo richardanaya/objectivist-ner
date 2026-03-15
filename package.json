@@ -1,6 +1,6 @@
 {
   "name": "objectivist-ner",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,8 +19,7 @@
   "scripts": {
     "dev": "tsx index.ts",
     "build": "tsc",
-    "prepublishOnly": "npm run build",
-    "postinstall": "node-llama-cpp download || true"
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=18"
