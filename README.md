@@ -338,22 +338,6 @@ Tested on a complex input with 11 entities across 6 classes:
 | Boston             | location | —            | location  |
 | **Found**          | **3/11** | **8/11**     | **11/11** |
 
-## Integration with objectivist-lattice
-
-This tool is designed to work with **[objectivist-lattice](https://github.com/richardanaya/objectivist-lattice)** — a knowledge management system that enforces the Objectivist hierarchy: percepts → concepts → principles → actions.
-
-**objectivist-ner** extracts the percepts and concepts. **objectivist-lattice** validates and organizes them into principles you can act on.
-
-### Workflow
-
-```bash
-# Extract structured observations from text
-ner --file chapter1.txt --detect-negation --resolve > percepts.json
-
-# Import into your knowledge lattice
-# (See objectivist-lattice documentation for details)
-```
-
 ## Epistemological Design
 
 Each feature maps to an Objectivist principle:
