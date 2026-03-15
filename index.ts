@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 import { program } from "commander";
 import path from "path";
 import os from "os";
