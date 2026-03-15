@@ -370,6 +370,10 @@ const modelPath = await resolveModelFile(modelUri, modelsDir);
 const llama = await getLlama({
   build: "autoAttempt",
   logLevel: LlamaLogLevel.error,
+  cmakeOptions: {
+    GGML_CPU: "ON",
+    GGML_NATIVE: "ON",
+  },
 });
 const model = await llama.loadModel({ modelPath });
 const context = await model.createContext();
