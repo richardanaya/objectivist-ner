@@ -1,24 +1,34 @@
 {
   "name": "objectivist-ner",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output",
+  "main": "index.ts",
   "bin": {
-    "ner": "index.ts"
+    "ner": "bin/ner"
   },
-  "module": "index.ts",
   "type": "module",
   "license": "MIT",
   "author": "Richard Anaya",
   "repository": "git@github.com:richardanaya/objectivist-ner.git",
+  "files": [
+    "index.ts",
+    "bin/",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "postinstall": "node-llama-cpp download || true"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "prettier": "^3.8.1"
   },
   "peerDependencies": {
-    "typescript": "^5"
-  },
-  "scripts": {
-    "postinstall": "node-llama-cpp download"
+    "typescript": "^5",
+    "bun": ">=1.0"
   },
   "dependencies": {
     "commander": "^14.0.3",
