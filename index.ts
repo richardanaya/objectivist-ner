@@ -47,48 +47,100 @@ interface SchemaFile {
 }
 
 // === TAXONOMY HELPERS ===
-function getLeafNodes(taxonomy: Record<string, string[]>): string[] {
-  const allNodes = new Set<string>();
-  const parents = new Set<string>();
+// Taxonomy format: {"organism": ["person", {"animal": ["dog", "cat"]}], "idea": ["dream", "principle"]}
+// Arrays contain leaf nodes, objects contain nested taxonomies
 
-  for (const [parent, children] of Object.entries(taxonomy)) {
-    parents.add(parent);
-    for (const child of children) {
-      allNodes.add(child);
+function getLeafNodes(taxonomy: Record<string, any>): string[] {
+  const leaves: string[] = [];
+
+  function traverse(node: any) {
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string") {
+          leaves.push(item);
+        } else if (typeof item === "object" && item !== null) {
+          traverse(item);
+        }
+      }
+    } else if (typeof node === "object" && node !== null) {
+      for (const [, value] of Object.entries(node)) {
+        traverse(value);
+      }
     }
   }
 
-  return [...allNodes].filter((node) => !parents.has(node));
+  traverse(taxonomy);
+  return leaves;
 }
 
 function getTaxonomyPath(
   leaf: string,
-  taxonomy: Record<string, string[]>,
+  taxonomy: Record<string, any>,
 ): string[] {
-  const path: string[] = [leaf];
-  let current = leaf;
-
-  while (true) {
-    let foundParent = false;
-    for (const [parent, children] of Object.entries(taxonomy)) {
-      if (children.includes(current)) {
-        path.push(parent);
-        current = parent;
-        foundParent = true;
-        break;
+  function findPath(
+    node: any,
+    target: string,
+    currentPath: string[],
+  ): string[] | null {
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string" && item === target) {
+          return [...currentPath, item];
+        } else if (typeof item === "object" && item !== null) {
+          const result = findPath(item, target, currentPath);
+          if (result) return result;
+        }
+      }
+    } else if (typeof node === "object" && node !== null) {
+      for (const [key, value] of Object.entries(node)) {
+        const result = findPath(value, target, [...currentPath, key]);
+        if (result) return result;
       }
     }
-    if (!foundParent) break;
+    return null;
   }
 
-  return path.reverse();
+  // Try each root node
+  for (const [rootKey, rootValue] of Object.entries(taxonomy)) {
+    const path = findPath(rootValue, leaf, [rootKey]);
+    if (path) return path;
+  }
+
+  return [leaf];
 }
 
-function taxonomyToPrompt(taxonomy: Record<string, string[]>): string {
-  const lines = Object.entries(taxonomy)
-    .map(([parent, children]) => `  ${parent}: ${children.join(", ")}`)
-    .join("\n");
-  return `Use the following class hierarchy. Classify at the most specific (leaf) level possible.\n${lines}`;
+function taxonomyToPrompt(taxonomy: Record<string, any>): string {
+  function formatNode(node: any, indent: string): string[] {
+    const lines: string[] = [];
+
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string") {
+          lines.push(`${indent}- ${item}`);
+        } else if (typeof item === "object" && item !== null) {
+          lines.push(...formatNode(item, indent));
+        }
+      }
+    } else if (typeof node === "object" && node !== null) {
+      for (const [key, value] of Object.entries(node)) {
+        lines.push(`${indent}- ${key}`);
+        lines.push(...formatNode(value, indent + "  "));
+      }
+    }
+
+    return lines;
+  }
+
+  const lines: string[] = [
+    "Use the following class hierarchy. Classify at the most specific (leaf) level:",
+  ];
+
+  for (const [rootKey, rootValue] of Object.entries(taxonomy)) {
+    lines.push(`- ${rootKey}`);
+    lines.push(...formatNode(rootValue, "  "));
+  }
+
+  return lines.join("\n");
 }
 
 // === CHUNKING ===

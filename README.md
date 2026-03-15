@@ -82,7 +82,7 @@ ner --resolve "Dr. Chen published a paper. She later won the Nobel Prize. The ne
 ### 3. Hierarchical Classification
 
 ```bash
-ner --taxonomy '{"organism":["person","animal"],"animal":["dog","cat"]}' \
+ner --taxonomy '{"organism":["person",{"animal":["dog","cat"]}],"idea":["dream","principle"]}' \
   "The golden retriever was playing with the child."
 ```
 
