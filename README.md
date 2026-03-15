@@ -538,7 +538,3 @@ ner "text" --model "hf:unsloth/Qwen3-8B-GGUF:Qwen3-8B-Q4_K_M.gguf"
 # Local file
 ner "text" --model ./my-custom-model.gguf
 ```
-
-```
-
-```
