@@ -97,20 +97,25 @@ idea
 
 ```bash
 ner --taxonomy '{"organism":["person",{"animal":["dog","cat"]}],"idea":["dream","principle"]}' \
-  "The golden retriever was playing with the child."
+  "The child recounted a vivid dream about the golden retriever."
 ```
 
 ```json
 [
   {
-    "class": "dog",
-    "text": "golden retriever",
-    "taxonomyPath": ["organism", "animal", "dog"]
+    "class": "person",
+    "text": "The child",
+    "taxonomyPath": ["organism", "person"]
   },
   {
-    "class": "person",
-    "text": "child",
-    "taxonomyPath": ["organism", "person"]
+    "class": "dream",
+    "text": "a vivid dream",
+    "taxonomyPath": ["idea", "dream"]
+  },
+  {
+    "class": "dog",
+    "text": "the golden retriever",
+    "taxonomyPath": ["organism", "animal", "dog"]
   }
 ]
 ```
