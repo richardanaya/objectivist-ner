@@ -1,0 +1,21 @@
+{
+  "name": "fastner",
+  "version": "0.0.0",
+  "description": "Fast LLM-powered NER with JSON schema constraints and grammar-guided output",
+  "module": "index.ts",
+  "type": "module",
+  "license": "MIT",
+  "author": "Richard Anaya",
+  "repository": "git@github.com:richardanaya/fastner.git",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prettier": "^3.8.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^14.0.3",
+    "node-llama-cpp": "^3.17.1"
+  }
+}
