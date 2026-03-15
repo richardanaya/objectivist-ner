@@ -1,6 +1,6 @@
 {
   "name": "objectivist-ner",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "dev": "tsx index.ts",
-    "build": "tsc",
+    "build": "tsc && echo '#!/usr/bin/env node' | cat - dist/index.js > temp.js && mv temp.js dist/index.js && chmod +x dist/index.js",
     "prepublishOnly": "npm run build"
   },
   "engines": {

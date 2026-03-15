@@ -629,6 +629,4 @@ if (inputTexts.length === 1) {
 }
 
 // === CLEANUP ===
-// Bun segfaults if process.exit() triggers synchronous native addon unloading.
-// Setting exitCode lets the event loop drain naturally, avoiding the crash.
 process.exitCode = 0;
