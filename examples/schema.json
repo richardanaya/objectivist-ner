@@ -1,0 +1,9 @@
+{
+  "taxonomy": {
+    "organism": ["person", "animal"],
+    "place": ["city", "country", "building"],
+    "institution": ["company", "university", "government_agency"]
+  },
+  "attributes": ["role", "age", "location", "affiliation"],
+  "relations": ["works_at", "located_in", "affiliated_with", "studies"]
+}

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules
+
+# Version control
+.git
+.gitignore
+
+# Development files
+tsconfig.json
+bun.lock
+*.log
+
+# Documentation and examples (README is published by default)
+examples/
+docs/
+test/
+tests/
+*.md
+!README.md
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build artifacts (if any)
+dist/
+build/
+
+# Temporary files
+.tmp/
+temp/
