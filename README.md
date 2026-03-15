@@ -18,6 +18,72 @@ In short, this is an attempt to make the extraction of entities philosophically 
 
 It runs completely locally using a small language model. No API keys. No data leaves your machine. The CLI is installed as the simple `ner` command.
 
+### A Concrete Example
+
+Consider this sentence:
+
+> "The patient has diabetes but does not have cancer. He might develop hypertension."
+
+**Typical NER is blind to assertion level.**
+
+It will usually return something like this:
+
+```json
+[
+  { "entity": "diabetes", "type": "DISEASE" },
+  { "entity": "cancer", "type": "DISEASE" },
+  { "entity": "hypertension", "type": "DISEASE" }
+]
+```
+
+It sees three diseases — and stops there. It has no understanding that the text is making three completely different claims about reality.
+
+**objectivist-ner** produces output that respects the relationship between concepts and existence:
+
+```json
+[
+  { "class": "disease", "text": "diabetes", "assertion": "present" },
+  { "class": "disease", "text": "cancer", "assertion": "negated" },
+  { "class": "disease", "text": "hypertension", "assertion": "hypothetical" }
+]
+```
+
+The `assertion` field tells you the **relationship to reality** the text is claiming:
+
+- **`present`** — the text says it exists
+- **`negated`** — the text explicitly denies it
+- **`hypothetical`** — the text is speaking speculatively ("might", "could")
+
+This prevents the philosophical error of treating a denied concept the same as an asserted one.
+
+### Same Entity Recognition
+
+Now consider this sentence:
+
+> "Dr. Chen is a brilliant neurologist. She later admitted her treatment was not as effective as claimed. The neurologist now recommends a different approach."
+
+**Typical NER** sees three separate people:
+
+```json
+[
+  { "entity": "Dr. Chen", "type": "PERSON" },
+  { "entity": "She", "type": "PERSON" },
+  { "entity": "The neurologist", "type": "PERSON" }
+]
+```
+
+**objectivist-ner** with `--resolve` understands they are the same person:
+
+```json
+[
+  { "class": "person", "text": "Dr. Chen", "entity_id": "e1" },
+  { "class": "person", "text": "She", "entity_id": "e1" },
+  { "class": "person", "text": "The neurologist", "entity_id": "e1" }
+]
+```
+
+This is the law of identity applied to language: **A is A**, even when referred to in different ways.
+
 ## Features
 
 - Exact span extraction -- entity `text` is the substring from the input, not a paraphrase
