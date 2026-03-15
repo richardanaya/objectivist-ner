@@ -122,14 +122,10 @@ This is the law of identity applied to language: **A is A**, even when referred 
 ## Installation
 
 ```bash
-# Local development
-bun install
-
-# Install globally as the `ner` command
 bun install -g objectivist-ner
 ```
 
-After global install, use the `ner` command directly.
+After installation, use the `ner` command directly.
 
 ## Usage
 
