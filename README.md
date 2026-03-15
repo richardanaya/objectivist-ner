@@ -37,15 +37,21 @@ After global install, use the `ner` command directly.
 
 ## Usage
 
-```bash
-# Uses --best (4B) by default
+````bash
+# Default mode (best quality)
 ner "the cat is blue and is feeling sad"
 
-# Pick a model tier
+```json
+[{"class":"animal","text":"cat","attributes":{"color":"blue","emotional_state":"sad"}}]
+````
+
+# Choose quality vs speed
+
 ner --fast "the cat is blue"
 ner --balanced "John works at Google in NYC"
 ner --best "complex medical research text"
-```
+
+````
 
 ### Entity constraints
 
@@ -53,22 +59,40 @@ ner --best "complex medical research text"
 # Restrict entity classes
 ner "John works at Google" --classes person,organization
 
+```json
+[
+  {"class":"person","text":"John","attributes":{}},
+  {"class":"organization","text":"Google","attributes":{}}
+]
+```
+
 # Restrict attribute keys
 ner "Alice is sad in Paris" --attributes emotional_state,location
 
+```json
+[{"class":"person","text":"Alice","attributes":{"emotional_state":"sad","location":"Paris"}}]
+```
+
 # Restrict attribute values with enums
 ner "The sky is blue" --attr-values '{"color":["blue","red","green"]}'
+
+```json
+[{"class":"object","text":"sky","attributes":{"color":"blue"}}]
+```
 
 # Hierarchical class taxonomy
 ner "Dr. Chen lives in Boston with her cat" \
   --taxonomy '{"organism":["person","animal"],"place":["city","country"]}'
 ```
 
-### Relation extraction
-
-```bash
-ner --relations "Dr. Chen works at MIT and collaborates with Prof. Wright"
+```json
+[
+  {"class":"person","text":"Dr. Chen","attributes":{}},
+  {"class":"place","text":"Boston","attributes":{}},
+  {"class":"animal","text":"cat","attributes":{}}
+]
 ```
+
 
 Output:
 
@@ -130,6 +154,14 @@ Output:
 ner --detect-negation "The patient has diabetes but does not have cancer. He might develop hypertension."
 ```
 
+```json
+[
+  {"class":"disease","text":"diabetes","attributes":{},"assertion":"present"},
+  {"class":"disease","text":"cancer","attributes":{},"assertion":"negated"},
+  {"class":"disease","text":"hypertension","attributes":{},"assertion":"hypothetical"}
+]
+```
+
 ### Confidence scores
 
 ```bash
@@ -189,13 +221,13 @@ ner "the cat is blue" --compact
 
 ## Models
 
-fastner ships with three built-in model tiers. Pick one with a flag -- the model is downloaded automatically on first use to `~/.fastner/models/`.
+fastner ships with three built-in quality tiers. Pick one with a flag -- the model is downloaded automatically on first use to `~/.fastner/models/`.
 
-| Flag         | Model             | Size | Download | Best for                        |
-| ------------ | ----------------- | ---- | -------- | ------------------------------- |
-| `--fast`     | Qwen3.5-0.8B Q8_0 | 0.8B | ~0.9 GB  | Simple text, single entities    |
-| `--balanced` | Qwen3.5-2B Q8_0   | 2B   | ~2.3 GB  | Moderate complexity, most tasks |
-| `--best`     | Qwen3.5-4B Q8_0   | 4B   | ~4.5 GB  | Dense text, rare entity types   |
+| Flag         | Size   | Download | Best for                              |
+| ------------ | ------ | -------- | ------------------------------------- |
+| `--fast`     | Small  | ~0.9 GB  | Simple text, single entities          |
+| `--balanced` | Medium | ~2.3 GB  | Moderate complexity, most tasks       |
+| `--best`     | Large  | ~4.5 GB  | Dense text, rare entity types         |
 
 `--best` is the default. See [Benchmarks](#benchmarks) for why.
 
@@ -203,9 +235,9 @@ fastner ships with three built-in model tiers. Pick one with a flag -- the model
 
 | Flag                              | Description                                    |
 | --------------------------------- | ---------------------------------------------- |
-| `--fast`                          | Use 0.8B model -- quick, simple text only      |
-| `--balanced`                      | Use 2B model -- good accuracy/speed tradeoff   |
-| `--best`                          | Use 4B model -- best accuracy (default)        |
+| `--fast`                          | Use smallest model -- quick, simple text only   |
+| `--balanced`                      | Use mid-size model -- good accuracy/speed tradeoff |
+| `--best`                          | Use largest model -- best accuracy (default)    |
 | `-c, --classes <list>`            | Comma-separated allowed entity classes         |
 | `-a, --attributes <list>`         | Comma-separated allowed attribute keys         |
 | `--attr-values <json>`            | JSON enum map for attribute values             |
@@ -353,3 +385,4 @@ ner "text" --model ./my-custom-model.gguf
 ## License
 
 MIT © Richard Anaya
+````
