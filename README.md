@@ -81,6 +81,20 @@ ner --resolve "Dr. Chen published a paper. She later won the Nobel Prize. The ne
 
 ### 3. Hierarchical Classification
 
+Define your ontology as a tree with mixed arrays (leaf nodes) and objects (nested hierarchies):
+
+```
+organism
+├── person
+└── animal
+    ├── dog
+    └── cat
+
+idea
+├── dream
+└── principle
+```
+
 ```bash
 ner --taxonomy '{"organism":["person",{"animal":["dog","cat"]}],"idea":["dream","principle"]}' \
   "The golden retriever was playing with the child."
