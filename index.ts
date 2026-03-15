@@ -320,6 +320,7 @@ function buildSystemPrompt(): string {
   }
   if (enableResolve) {
     base += `\n- Every entity has a top-level "entity_id" field. If multiple text spans refer to the same real-world entity (e.g. "Dr. Chen" and "she"), they share the same entity_id. Use short IDs like "e1", "e2".`;
+    base += `\n- When multiple mentions share an entity_id, exactly ONE of them must have "is_canonical": true (the most specific reference like a proper name). The others must have "is_canonical": false.`;
   }
 
   let prompt = `${base}\n\n${FEW_SHOT_EXAMPLES}`;
@@ -371,7 +372,9 @@ function buildGrammarSchema() {
   }
   if (enableResolve) {
     properties.entity_id = { type: "string" };
+    properties.is_canonical = { type: "boolean" };
     required.push("entity_id");
+    required.push("is_canonical");
   }
 
   const schema: any = {
@@ -442,7 +445,7 @@ function buildConstraints(): string {
     constraints += `\nEvery entity has a "confidence" field (not in attributes). Example: [{"class":"person","text":"John","confidence":"high","attributes":{}}]`;
   }
   if (enableResolve) {
-    constraints += `\nEvery entity has an "entity_id" field (not in attributes). Coreferent mentions share the same entity_id. Example: [{"class":"person","text":"Dr. Chen","entity_id":"e1","attributes":{}},{"class":"person","text":"She","entity_id":"e1","attributes":{}}]`;
+    constraints += `\nEvery entity has "entity_id" and "is_canonical" fields. Coreferent mentions share entity_id; exactly one per group has is_canonical:true (the most specific reference). Example: [{"class":"person","text":"Dr. Chen","entity_id":"e1","is_canonical":true,"attributes":{}},{"class":"person","text":"She","entity_id":"e1","is_canonical":false,"attributes":{}}]`;
   }
   if (enableRelations) {
     constraints += `\nAlso extract relations between entities. Return {"entities": [...], "relations": [{"source": "entity text", "target": "entity text", "relation": "relation type"}]}.`;

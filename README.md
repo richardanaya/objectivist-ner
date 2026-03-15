@@ -220,25 +220,34 @@ Output:
     "class": "person",
     "text": "Dr. Chen",
     "attributes": {},
-    "entity_id": "e1"
+    "entity_id": "e1",
+    "is_canonical": true
   },
-  { "class": "person", "text": "She", "attributes": {}, "entity_id": "e1" },
+  {
+    "class": "person",
+    "text": "She",
+    "attributes": {},
+    "entity_id": "e1",
+    "is_canonical": false
+  },
   {
     "class": "person",
     "text": "The neurologist",
     "attributes": {},
-    "entity_id": "e1"
+    "entity_id": "e1",
+    "is_canonical": false
   },
   {
     "class": "event",
     "text": "the Nobel Prize",
     "attributes": {},
-    "entity_id": "e2"
+    "entity_id": "e2",
+    "is_canonical": true
   }
 ]
 ```
 
-`entity_id` is a grammar-enforced top-level field, not inside `attributes`.
+`entity_id` groups coreferent mentions. `is_canonical` marks the most specific reference (proper names over pronouns or descriptions).
 
 ### Negation detection
 
