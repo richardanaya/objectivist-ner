@@ -1,10 +1,22 @@
 # objectivist-ner
 
-Objectivist-inspired Named Entity Recognition with grammar-constrained LLM output.
+Most Named Entity Recognition tools treat language as a bag of words to be statistically tagged.
 
-Uses [node-llama-cpp](https://github.com/withcatai/node-llama-cpp) to run a small language model locally, enforcing structured output via JSON schema grammars. No API keys, no network calls -- everything runs on your machine.
+This tool takes a different approach.
 
-The CLI is installed as the `ner` command.
+It is built on the Objectivist recognition that concepts are not arbitrary labels — they are integrations of observed reality, formed by identifying essential characteristics and omitting measurements. A valid concept must be grounded in percepts, organized hierarchically, and maintain identity across contexts.
+
+That is why `objectivist-ner` emphasizes:
+
+- **Exact entity spans** — because a concept must refer to something specific in reality, not a loose paraphrase or abstraction
+- **Hierarchical classification** — because proper concept formation requires understanding genus and differentia, not flat tag lists
+- **Negation detection** — because the relationship of a concept to existence (asserted, denied, or hypothetical) is epistemologically essential
+- **Confidence ratings** — because knowledge is hierarchical; some identifications are more certain than others
+- **Coreference resolution** — because the law of identity demands we recognize the same existent across multiple descriptions ("Dr. Chen", "she", "the neurologist")
+
+In short, this is an attempt to make the extraction of entities philosophically responsible — to extract knowledge in a way that can later be integrated into principles and actions, rather than producing disconnected fragments.
+
+It runs completely locally using a small language model. No API keys. No data leaves your machine. The CLI is installed as the simple `ner` command.
 
 ## Features
 
