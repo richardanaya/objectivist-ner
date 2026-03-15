@@ -412,3 +412,15 @@ ner --schema complete-ontology.json "Dr. Chen works at Massachusetts General Hos
 ```
 
 This loads taxonomy, classes, attributes, attribute values, relation types, and relation classes all at once.
+
+---
+
+## Building Principles from Percepts
+
+`objectivist-ner` extracts the raw perceptual material from any text: concrete entities with exact spans, hierarchical taxonomy (genus and differentia), coreferences preserving identity, assertions vs. negations, and relations.
+
+This supplies the inductive base required by Objectivist epistemology.
+
+Feed it philosophical works, scientific papers, historical accounts, or any reality-grounded writing. The parsed output gives you the concretes needed to form concepts and derive principles—anchored in observed facts, not floating abstractions.
+
+Use it to mine source material, reduce arguments to their perceptual roots, and build your own objective knowledge from existence.
